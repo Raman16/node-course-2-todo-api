@@ -851,3 +851,160 @@ output:
 .....
 ...
 
+
+findById()
+example:
+server/server.js
+var express= require('express');
+var bodyParser=require('body-parser');
+var {ObjectID}=require('mongodb')
+var {mongoose}=require('./db/mongoose');
+var {Users}=require('./model/Users');
+var {Todos}=require('./model/Todos');
+
+
+var app=express();
+
+const port=process.env.PORT || 3000;
+
+app.use(bodyParser.json());
+
+app.post('/todos',(req,res)=>{
+   //console.log(req.body);
+   var todo=new Todos({
+       text:req.body.text
+   });
+   todo.save().then((doc)=>{
+       //console.log('Todo created'+doc);
+       res.status(400).send(doc)
+   },(err)=>{
+      // console.log('Error in creating Todo:'+err);
+      res.send(err);
+   });
+
+});
+
+
+app.get('/todos',(req,res)=>{
+    
+    Todos.find().then((todos)=>{
+    res.send({
+        todos
+    });
+   });
+},(err)=>{
+    console.log('unable to get'+err);
+});
+
+app.get('/todos/:id',(req,res)=>{
+    var id=req.params.id;
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    Todos.findById(id).then((todo)=>{
+        if(!todo){
+            return res.status(404).send();
+        }
+        res.send({todo});
+            
+    },((err)=>{
+        return res.status(400).send();
+    }));
+
+})
+
+app.listen(port ,()=>{
+   console.log(`Started on  port 3000 ${port}`  );   
+})
+
+
+
+mongoose-quries.js
+const {ObjectID}=require('mongodb');
+var {mongoose}=require('./../server/db/mongoose');
+var {Todos}=require('./../server/model/Todos');
+
+//var id='5a80630bf09697623e01df7e';
+//In mongoose we need no need to use ObjectID(id), it automatically call that constructor
+Todos.find({_id:id}).then((todos)=>{
+    console.log('Todos(find)'+todos);
+});
+
+Todos.findOne({_id:id}).then((todo)=>{
+    console.log('Todos(findOne)'+todo);
+});
+
+if(!ObjectID.isValid(id)){
+    console.log('ID is not valid');
+   }
+
+Todos.findById(id).then((todo)=>{
+    if(!todo){
+        return console.log('Id not found...');
+    }
+    console.log('Todos(findById)'+todo);
+}).catch((err)=>{
+  console.log(err)
+});
+
+
+
+
+outputIn:postman//200 status
+localhost:3020/todos/5a80630bf09697623e01df7e
+{
+    "todo":{
+            "_id":"5a80630bf09697623e01df7e",
+            "text":"This is from Postman",
+            "__v":0,
+            "completedAt":null,
+            "completed":false
+            }
+}
+
+
+
+
+
+Deploy API to Heroku
+package.json
+
+"scripts":{
+     "start":"node server/server.js"
+  },
+
+ "engines":{      ///lets us specify various versions  that things Heroku to be used
+     "node":"6.11.4"
+ },
+
+ hence 
+ package.json
+ {
+  "name": "nodo-todo-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts":{
+     "start":"node server/server.js"
+  },
+  "engines":{
+     "node":"6.11.4"
+ },
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "1.15.2",
+    "express": "4.14.0",
+    "mongodb": "2.2.5",
+    "mongoose": "4.5.9"
+  }
+}
+
+
+
+
+Setting UP database on Heroku.
+
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku create
+Creating app... done, ⬢ whispering-everglades-63580
+https://whispering-everglades-63580.herokuapp.com/ | https://git.heroku.com/whispering-everglades-63580.git
+
