@@ -7,6 +7,7 @@ const MONGO_URI = process.env.PORT ? REMOTE_MONGO : LOCAL_MONGO;
 mongoose.connect(MONGO_URI)
 .then((res)=>{ console.log('connected')})
 .catch((err)=>{ 
-   fs.appendFileSync('log',`${err}\n`);       
+   //fs.appendFileSync('log',`${err}\n`);       
+   console.log(err);
 });
 //mongoose.connect('mongodb://localhost:27017/TodoApp');
