@@ -6,7 +6,7 @@
      "start":"node server/server.js"
   },
   "engines":{
-     "node":"6.2.2"
+     "node":"6.11.4"
  },
   "license": "MIT",
   "dependencies": {
