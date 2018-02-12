@@ -2,7 +2,7 @@ const {ObjectID}=require('mongodb');
 var {mongoose}=require('./../server/db/mongoose');
 var {Todos}=require('./../server/model/Todos');
 
-var id='5a80630bf09697623e01df7e';
+//var id='5a80630bf09697623e01df7e';
 //In mongoose we need no need to use ObjectID(id), it automatically call that constructor
 Todos.find({_id:id}).then((todos)=>{
     console.log('Todos(find)'+todos);
@@ -24,3 +24,5 @@ Todos.findById(id).then((todo)=>{
 }).catch((err)=>{
   console.log(err)
 });
+
+
