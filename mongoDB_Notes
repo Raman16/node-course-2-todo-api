@@ -1,0 +1,853 @@
+Setting your email address for every repository on your computer
+git config --global user.email "email@example.com"
+
+Confirm that you have set the email address correctly in Git:
+git config --global user.email
+
+
+Installing MongoDB
+refer Video 60.
+
+Install MongoDB
+https://www.mongodb.com/download-center?jmp=nav#community
+
+1)Extract downloaded files onto any path
+
+i)create a foler name mongodb and Extract files
+cd /var/www/html/mongodb and paste the files downloaded here
+
+>/var/www/html/mongodb/bin$ ls
+mongod mongofiles 
+..........
+...........
+
+ii)create a folder called mongo-data where all the NOSQL data of mongodb is stored
+
+and set dbpath as below.
+>/var/www/html/mongodb/bin$ ./mongodb --dbpath mongo-data
+
+
+ii)start the mongodb server using below command
+>/var/www/html/mongodb/bin$ ./mongo
+MongoDB shell verion v3.6.2
+................
+..................
+
+
+>db.Todos.find();
+//wee will see object if exist any or else create using dn.Todos.insert({text:'hello'})
+
+
+
+
+
+
+
+
+
+
+Installing robomongo
+i)Download robomongo from website
+ii)extract and copy the files in 
+
+>sudo mkdir /usr/local/bin/robomongo
+//paste the files and follow fee steps from stackoverflowand all to install the files
+
+
+Robo3t crashes on Ubuntu 16.04 on startup #1392
+https://github.com/Studio3T/robomongo/issues/1392
+
+$ tar xvzf robo3t-1.1.1-linux-x86_64-c93c6b0.tar.gz 
+$ cd robo3t-1.1.1-linux-x86_64-c93c6b0/bin
+$ ./robo3t 
+
+follow below steps
+mkdir ~/robo-backup
+mv robo3t-1.1.1-linux-x86_64-c93c6b0/lib/libstdc++* ~/robo-backup/
+robo3t-1.1.1-linux-x86_64-c93c6b0/bin/robo3t
+
+
+
+or
+
+check this which works for Raman.
+1)Download robomongo from link
+https://robomongo.org/download
+
+2)Extract the files
+>$ tar xvzf robo3t-1.1.1-linux-x86_64-c93c6b0.tar.gz 
+
+
+3)go to the path and follow below
+
+>$ cd robo3t-1.1.1-linux-x86_64-c93c6b0/bin
+>robo3t-1.1.1-linux-x86_64-c93c6b0/bin$ ./robo3t
+
+This application failed to start because it could not find or load the Qt platform plugin "xcb"
+in "".
+
+4)If error appear above then follow steps from github
+https://github.com/Studio3T/robomongo/issues/1392
+(Robo3t crashes on Ubuntu 16.04 on startup #1392)
+
+5)Make directory in root path and move the extracted files into ~/robo-backup/ folder then
+run robo3t
+
+   >$mkdir ~/robo-backup //home directory
+   >$mv robo3t-1.1.1-linux-x86_64-c93c6b0/lib/libstdc++* ~/robo-backup/
+   >$ robo3t-1.1.1-linux-x86_64-c93c6b0/bin/robo3t
+
+6)We will be seeing mangoRobo tool management UI 
+give then name and click next button..
+
+
+
+NOSQL Vocubulary
+
+
+SQL-NOSQL
+TABLES=COLLECTIONS
+ROW/RECORDS=DOCUMENT
+COLUMN=FIEDS/PROPERTIES.
+
+
+
+Install MongoDB Driver
+http://mongodb.github.io/node-mongodb-native/
+
+we will use 2.2 Driver	
+
+sadmin@AcubeL020:/var/www/html/nodo-todo-api$ yarn add mongodb@2.2.5 --save
+yarn add v1.3.2
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+[4/4] Building fresh packages...
+success Saved 0 new dependencies.
+Done in 0.52s.
+
+Now We will use MangoClient
+MangoClient lets you connect to MangoServer.
+
+
+Example:
+node playground/mangodb-connect.js
+
+const MongoClient=require('mongodb').MongoClient;
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+   if(err){
+      return console.log(`Unable to connect MangoDB Server....`);
+   }
+   console.log('Connected to MangoDB Server...');
+   db.close();
+});
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-connect.js
+Connected to MangoDB Server...
+
+Note:mongodb://localhost:27017/TodoApp-->Here TodoApp is database that is created by MongoDB if it does not exist...
+
+Important Note:when we check TodoApp Datbase in RoboMongo UI, we will not see it becasue, database doesnot create
+until some record is inserted.... 
+
+
+
+Example:2
+mangodb-connect.js
+
+const MongoClient=require('mongodb').MongoClient;
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+   if(err){
+      return console.log(`Unable to connect MangoDB Server....`);
+   }
+   console.log('Connected to MangoDB Server...');
+
+   db.collection('Todos').insertOne({
+      text:'Something to do...',
+      completed:false
+   },(err,res)=>{
+      if(err){
+          return console.log('Unable to insert Todo',err);
+      }
+      console.log(JSON.stringify(res.ops,undefined,2));
+   });
+
+   db.collection('Users').insertOne({
+     name:'Raman',
+     age:27,
+     location:"Bangalore"
+   },(err,res)=>{
+      if(err){
+          return console.log('unable to insert Users',err);
+      }
+      console.log(JSON.stringify(res.ops,undefined,2));
+   });
+   db.close();
+});
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-connect.js
+Connected to MangoDB Server...
+[
+  {
+    "text": "Something to do...",
+    "completed": false,
+    "_id": "5a7eb72f0c11a35f25ffede8"
+  }
+]
+[
+  {
+    "name": "Raman",
+    "age": 27,
+    "location": "Bangalore",
+    "_id": "5a7eb72f0c11a35f25ffede9"
+  }
+]
+
+
+
+The ObjectId:
+MongoDB has a uniquire random id that is made of few different things..
+Its a 12byte value
+1)first 4 bytes are timestamp
+2)3bytes->Machine IDentifier(i.e different Machine has different MachineID and it uses)
+3)2bytes->Process ID.
+4)3bytes countet value->a just a random value....
+
+Example:
+
+const MongoClient=require('mongodb').MongoClient;
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+   if(err){
+      return console.log(`Unable to connect MangoDB Server....`);
+   }
+   console.log('Connected to MangoDB Server...');
+
+   db.collection('Users').insertOne({
+     name:'Raman',
+     age:27,
+     location:"Bangalore"
+   },(err,res)=>{
+ 
+      if(err){
+          return console.log('unable to insert Users',err);
+      }
+      console.log(res.ops[0]._id.getTimestamp());
+   });
+   db.close();
+});
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-connect.js
+Connected to MangoDB Server...
+2018-02-10T16:17:07.000Z
+
+
+Object destructuring as ES6s
+var user={name:'Raman',Age:27}
+var {name}=user;
+console.log(name);//Object destructuring as ES6.
+
+//const MongoClient=require('mongodb').MongoClient;
+const {MongoClient,ObjectID}=require('mongodb');//Object destructuring...
+//ObjectID->constructor function lets us make new  ObjectID's on the fly....
+
+var obj=new ObjectID();//ccreats a regaulr object Id
+console.log(obj);//we can use this ObjectID for any pupose as its a uniqure ID.
+
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+   if(err){
+      return console.log(`Unable to connect MangoDB Server....`);
+   }
+   console.log('Connected to MangoDB Server...');
+
+   db.close();
+});
+
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-connect.js
+5a7f2591fa87ec74affc8d7c
+Connected to MangoDB Server...
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-connect.js
+5a7f25936d010774ba9d50cd
+Connected to MangoDB Server...
+
+db.collections('Todos').find();//
+find() return a MongoDB cursor, a cursor is not document themseleves. they could be 
+pointer to those document...
+one of common cursor method is toArray()
+
+
+
+Example:
+//const MongoClient=require('mongodb').MongoClient;
+const {MongoClient,ObjectID}=require('mongodb');//Object destructuring...
+
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+   if(err){
+      return console.log(`Unable to connect MangoDB Server....`);
+   }
+   console.log('Connected to MangoDB Server...');
+
+    
+   db.collection('Todos').find().toArray().then((docs)=>{
+       console.log(JSON.stringify(docs,undefined,2));
+   },(err)=>{
+     console.log('unable to fetch:'+err);
+   });
+   //db.close();
+});
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-find.js
+Connected to MangoDB Server...
+[
+  {
+    "_id": "5a7eb6caa30c6a5efa6d5157",
+    "text": "Something to do...",
+    "completed": false
+  },
+  {
+    "_id": "5a7eb72f0c11a35f25ffede8",
+    "text": "Something to do...",
+    "completed": true
+  }
+]
+
+
+Example:2//find with normal argument
+//const MongoClient=require('mongodb').MongoClient;
+const {MongoClient,ObjectID}=require('mongodb');//Object destructuring...
+
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+   if(err){
+      return console.log(`Unable to connect MangoDB Server....`);
+   }
+   console.log('Connected to MangoDB Server...');
+
+    
+   db.collection('Todos').find({
+    completed:true
+   }).toArray().then((docs)=>{
+       console.log(JSON.stringify(docs,undefined,2));
+   },(err)=>{
+     console.log('unable to fetch:'+err);
+   });
+   //db.close();
+});
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-find.js
+Connected to MangoDB Server...
+[
+  {
+    "_id": "5a7eb72f0c11a35f25ffede8",
+    "text": "Something to do...",
+    "completed": true
+  }
+]
+
+Example:3//find with ObjectID argument
+//const MongoClient=require('mongodb').MongoClient;
+const {MongoClient,ObjectID}=require('mongodb');//Object destructuring...
+
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+   if(err){
+      return console.log(`Unable to connect MangoDB Server....`);
+   }
+   console.log('Connected to MangoDB Server...');
+
+    
+   db.collection('Todos').find({
+    _id:new ObjectID('5a7eb6caa30c6a5efa6d5157')
+   }).toArray().then((docs)=>{
+       console.log(JSON.stringify(docs,undefined,2));
+   },(err)=>{
+     console.log('unable to fetch:'+err);
+   });
+   //db.close();
+});
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-find.js
+Connected to MangoDB Server...
+[
+  {
+    "_id": "5a7eb6caa30c6a5efa6d5157",
+    "text": "Something to do...",
+    "completed": false
+  }
+]
+
+
+Example:4 get count:
+
+//const MongoClient=require('mongodb').MongoClient;
+const {MongoClient,ObjectID}=require('mongodb');//Object destructuring...
+
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+   if(err){
+      return console.log(`Unable to connect MangoDB Server....`);
+   }
+   console.log('Connected to MangoDB Server...');
+   db.collection('Todos').find().count().then((cnt)=>{
+    console.log('Count:'+cnt);
+   },(err)=>{
+    console.log('unable to fetch:'+err);
+   });
+
+   //db.close();
+});
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-find.js
+Connected to MangoDB Server...
+Count:2
+
+note:check Cursor methods in 
+http://mongodb.github.io/node-mongodb-native/3.0/api/Cursor.html#each
+
+
+example:5
+const {MongoClient}=require('mongodb');//Object destructuring...
+
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+   if(err){
+      return console.log(`Unable to connect MangoDB Server....`);
+   }
+   console.log('Connected to MangoDB Server...');
+  db.collection('Users').find({
+      name:'Raman'
+  }).toArray().then((user)=>{
+    console.log('User: '+JSON.stringify(user,undefined,2));
+
+  },(err)=>{
+    console.log('unable to fetch:'+err);
+
+  })
+
+   //db.close();
+});
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-users-find.js
+Connected to MangoDB Server...
+User: [
+  {
+    "_id": "5a7eb72f0c11a35f25ffede9",
+    "name": "Raman",
+    "age": 27,
+    "location": "Bangalore"
+  }
+]
+
+Delete document in mongodb
+
+Example:1
+const {MongoClient}=require('mongodb');
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+ if(err){
+     return console.log('Unable to connect');
+ }
+ console.log('connected...');
+
+ db.collection('Todos').deleteMany({
+     text:'Eat lunch'
+ }).then((res)=>{
+     console.log(res);
+ },(err)=>{
+     console.log(err);
+ })
+
+ //db.close();
+
+
+})
+
+
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mongodb-delete-todos.js
+connected...
+CommandResult {
+  result: { n: 3, ok: 1 },
+  connection:
+   Connection {
+     domain: null,
+     _events:
+      { error: [Object],
+        close: [Object],
+
+        .....
+    
+
+Example:2
+db.collection('Todos').deleteOne({
+    completed:true
+}).then((res)=>{
+    console.log(res);
+},(err)=>{
+    console.log(err);
+})
+
+output:
+CommandResult {
+  result: { n: 2, ok: 1 },  connection:
+
+....
+
+
+example:3
+db.collection('Todos').findOneAndDelete({
+    _id:new ObjectID('5a7eb6caa30c6a5efa6d5157')
+}).then((res)=>{
+    console.log(res);
+},(err)=>{
+    console.log(err);
+})
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mongodb-delete-todos.js
+connected...
+{ lastErrorObject: { n: 1 },
+  value:
+   { _id: 5a7eb6caa30c6a5efa6d5157,
+     text: 'Something to do...',
+     completed: false },
+  ok: 1 }
+
+  Example:3 differnt types of delete
+  const {MongoClient,ObjectID}=require('mongodb');
+
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+ if(err){
+     return console.log('Unable to connect');
+ }
+ console.log('connected...');
+
+//  db.collection('Todos').deleteMany({
+//      text:'eat lunch'
+//  }).then((res)=>{
+//      console.log(res);
+//  },(err)=>{
+//      console.log(err);
+//  })
+
+// db.collection('Todos').deleteOne({
+//     completed:true
+// }).then((res)=>{
+//     console.log(res);
+// },(err)=>{
+//     console.log(err);
+// })
+
+db.collection('Todos').findOneAndDelete({
+    _id:new ObjectID('5a7eb6caa30c6a5efa6d5157')
+}).then((res)=>{
+    console.log(res);
+},(err)=>{
+    console.log(err);
+})
+
+//db.close();
+
+
+})
+
+
+
+MongoDB Update method.
+
+Check for update API in 
+http://mongodb.github.io/node-mongodb-native/2.2/api/Collection.html#findOneAndUpdate
+findOneAndUpdate(filter, update, options, callback){Promise}
+
+Check for MongoDB update operator in below link..
+https://docs.mongodb.com/manual/reference/operator/update/
+
+Example:
+const {MongoClient,ObjectID}=require('mongodb');
+
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+    if(err){
+        return console.log('Unable to connect..');
+    }
+    console.log('Connected...');
+   
+  db.collection('Todos').findOneAndUpdate({
+      _id:new ObjectID('5a7f38d8e9d4217a97333220')
+  },{
+      $set:{completed:false}
+    },
+    {
+        returnOriginal:false//returns the updated document rather than the original
+    }).then((res)=>{
+        console.log(res);
+    });
+
+
+
+});
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-update.js
+Connected...
+{ lastErrorObject: { n: 1, updatedExisting: true },
+  value:
+   { _id: 5a7f38d8e9d4217a97333220,
+     text: 'eat lunch',
+     completed: false },
+  ok: 1 }
+
+
+
+Example:2
+
+const {MongoClient,ObjectID}=require('mongodb');
+MongoClient.connect('mongodb://localhost:27017/TodoApp',(err,db)=>{
+    if(err){
+        return console.log('Unable to connect..');
+    }
+    console.log('Connected...');
+   
+  db.collection('Users').findOneAndUpdate({
+      _id:new ObjectID('5a7eb72f0c11a35f25ffede9')
+  },{
+      $inc:{age:1}
+    },
+    {
+        returnOriginal:false//returns the updated document rather than the original
+    }).then((res)=>{
+        console.log(res);
+    });
+});
+
+previous document is
+ { _id: 5a7eb72f0c11a35f25ffede9,
+     name: 'Raman',
+     age: 27,
+     location: 'Bangalore' },
+
+after update is below
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mangodb-update-user.js
+Connected...
+{ lastErrorObject: { n: 1, updatedExisting: true },
+  value:
+   { _id: 5a7eb72f0c11a35f25ffede9,
+     name: 'Raman',
+     age: 28,
+     location: 'Bangalore' },
+  ok: 1 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+  Mongoose ORM(Object Relational Mapping)
+  Mongoose is an object data modeling (ODM) library that provides a rigorous modeling environment for your data, enforcing structure as needed while still maintaining the flexibility that makes MongoDB powerful
+
+  In terms of Node.js, mongodb is the native driver for interacting with a mongodb instance and mongoose is an Object modeling tool for MongoDB.
+  Mongoose is built upon the MongoDB driver to provide programmers with a way to model their data.
+
+Mongodb is the database itself, while Mongoose is an object modeling tool for Mongodb
+
+In other languages its like Eloquent in Laravel...
+
+
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ yarn add mongoose@4.5.9 --save
+yarn add v1.3.2
+
+concept:
+
+var mongoose=require('mongoose');
+mongoose.connect('mongodb://localhost:27017/TodoApp');
+//mongoose maintaining connection over time
+
+//save new Something
+
+
+example:
+var mongoose=require('mongoose');
+mongoose.Promise=global.Promise;    
+mongoose.connect('mongodb://localhost:27017/TodoApp');
+
+//save new something...
+var Todo=mongoose.model('Todo',{
+    text:{
+       type:String
+    },
+    completed:{
+        type:Boolean
+    },
+    completedAt:{
+        type:Number
+    }
+})
+
+var newTodo=new Todo({
+    text:'Welcome to Mongoose...'
+}); 
+
+newTodo.save().then((doc)=>{
+
+    console.log('saved:'+doc);
+
+},(err)=>{
+    console.log('Unable TODO');
+});
+
+
+var otherTodo=new Todo({
+    text:'Eating Lunch',
+    completed:true,
+    completedAt:1
+}); 
+
+otherTodo.save().then((doc)=>{
+
+    console.log('saved:'+doc);
+
+},(err)=>{
+    console.log('Unable TODO');
+});
+
+
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node server/server.js
+saved:{ __v: 0,
+  text: 'Welcome to Mongoose...',
+  _id: 5a7fe7c58426a4ac1f187d13 }
+saved:{ __v: 0,
+  text: 'Eating Lunch',
+  completed: true,
+  completedAt: 1,
+  _id: 5a7fe7c58426a4ac1f187d14 }
+
+
+
+
+Mongoose Validations:
+http://mongoosejs.com/docs/validation.html
+Validation is defined in the SchemaType
+Validation is middleware. Mongoose registers validation as a pre('save') hook on every schema by default.
+You can manually run validation using doc.validate(callback) or doc.validateSync()
+Validators are not run on undefined values. The only exception is the required validator.
+Validation is asynchronously recursive; when you call Model#save, sub-document validation is executed as well. If an error occurs, your Model#save callback receives it
+Validation is customizable
+
+
+http://mongoosejs.com/docs/guide.html
+
+server.js
+var mongoose=require('mongoose');
+mongoose.Promise=global.Promise;    
+mongoose.connect('mongodb://localhost:27017/TodoApp');
+
+//save new something...
+var Todo=mongoose.model('Todo',{
+    text:{
+       type:String,
+       require:true,
+       minlength:1,
+       trim:true//removes any whitespaces in the string
+    },
+    completed:{
+        type:Boolean,
+        default:false
+    },
+    completedAt:{
+        type:Number,
+        default:null
+    }
+})
+
+var newTodo=new Todo({
+    text:'          Welcome to Mongoose...'
+}); 
+
+newTodo.save().then((doc)=>{
+
+    console.log('saved:'+doc);
+
+},(err)=>{
+    console.log('Unable TODO');
+});
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node server/server.js
+saved:{ __v: 0,
+  text: 'Welcome to Mongoose...',///////////////////////trimmed
+  _id: 5a7febad2997f54722b4bdad,
+  completedAt: null,
+  completed: false }
+
+example:2
+var newTodo=new Todo({
+    text:''
+}); 
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node server/server.js
+Unable 
+
+
+
+Example:3
+var mongoose=require('mongoose');
+mongoose.Promise=global.Promise;    
+mongoose.connect('mongodb://localhost:27017/TodoApp');
+
+
+var Users=mongoose.model('Users',{
+    name:{
+        type:String,
+        require:true,
+         minlength:1
+     },
+     email:{
+         type:String,
+         require:true,
+         minlength:6,
+         unique: true,//sets email as unique
+         trim:true
+
+     }
+});
+
+var newUser=new Users({
+    name:'R',
+    email:'band'
+});
+
+newUser.save().then((doc)=>{
+   console.log('new User Created:'+doc);
+},(err)=>{
+    console.log(err);
+});
+
+output:
+{ ValidationError: Users validation failed
+.....
+....
+  { email:
+      { ValidatorError: Path `email` (`band`) is shorter than the minimum allowed length (6).
+
+
+Example:5
+var newUser=new Users({
+    name:'R',
+    email:'bandariraman@gmail.com'
+});
+
+run again
+
+var newUser=new Users({
+    name:'R',
+    email:'bandariraman@gmail.com'
+});
+
+output:
+{ MongoError: E11000 duplicate key error collection: TodoApp.users index: email_1 dup key: { : "bandariraman@gmail.com"
+.....
+...
+

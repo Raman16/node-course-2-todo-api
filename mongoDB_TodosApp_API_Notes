@@ -1,0 +1,205 @@
+
+Installin Postman
+wget https://dl.pstmn.io/download/latest/linux64 -O postman.tar.gz
+sudo tar -xzf postman.tar.gz -C /opt
+rm postman.tar.gz
+sudo ln -s /opt/Postman/Postman /usr/bin/postman
+
+$postman
+//opens postman..
+
+Resource Creation EndPoints
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ yarn add express@4.14.0 body-parse --save
+install body-parse and express.js
+body-parse:
+Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
+
+
+
+
+Example:
+server.js
+var express= require('express');
+var bodyParser=require('body-parser');
+
+var {mongoose}=require('./db/mongoose');
+var {Users}=require('./model/Users');
+var {Todos}=require('./model/Todos');
+
+
+var app=express();
+
+app.use(bodyParser.json());
+
+app.post('/todos',(req,res)=>{
+   //console.log(req.body);
+   var todo=new Todos({
+       text:req.body.text
+   });
+   todo.save().then((doc)=>{
+       //console.log('Todo created'+doc);
+       res.status(400).send(doc)
+   },(err)=>{
+      // console.log('Error in creating Todo:'+err);
+      res.send(err);
+   });
+
+
+   
+})
+
+app.listen(3000,()=>{
+   console.log('Started on  port 3000');   
+})
+
+
+server/db/mongoose.js
+var mongoose=require('mongoose');
+mongoose.connect('mongodb://localhost:27017/TodoApp');
+
+
+server/model/Todos.js
+var mongoose=require('mongoose');
+var Todos=mongoose.model('Todo',{
+    text:{
+       type:String,
+       require:true,
+       minlength:1,
+       trim:true//removes any whitespaces in the string
+    },
+    completed:{
+        type:Boolean,
+        default:false
+    },
+    completedAt:{
+        type:Number,
+        default:null
+    }
+});
+
+module.exports={Todos};
+
+
+server/mode/Todos.js
+var mongoose=require('mongoose');
+var Users=mongoose.model('Users',{
+    name:{
+        type:String,
+        require:true,
+         minlength:1
+     },
+     email:{
+         type:String,
+         require:true,
+         minlength:6,
+         unique: true,
+         trim:true
+
+     }
+});
+
+module.exports={Users};
+
+output:
+node server/server.js
+
+localhost:3000/todos
+//open postman
+{
+  "text":"take a brak for dinner"
+}
+
+output:
+{"__v":0,"text":"take a brak for dinner","_id":"5a806365f09697623e01df80","completedAt":null,"completed":false}.
+
+hit send 
+
+
+
+
+playground/mongoose-quries.js
+var {mongoose}=require('./../server/db/mongoose');
+var {Todos}=require('./../server/model/Todos');
+
+var id='5a80630bf09697623e01df7e';
+//In mongoose we need no need to use ObjectID(id), it automatically call that constructor
+Todos.find({_id:id}).then((todos)=>{
+    console.log('Todos(find)'+todos);
+});
+
+Todos.findOne({_id:id}).then((todo)=>{
+    console.log('Todos(findOne)'+todo);
+});
+
+
+Todos.findById(id).then((todo)=>{
+    console.log('Todos(findById)'+todo);
+});
+
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mongoose-quries.js
+(node:17952) DeprecationWarning: Mongoose: mpromise (mongoose's default promise library) is deprecated, plug in your own promise library instead: http://mongoosejs.com/docs/promises.html
+Todos(find){ _id: 5a80630bf09697623e01df7e,
+  text: 'This is from Postman',
+  __v: 0,
+  completedAt: null,
+  completed: false }
+
+Todos(findOne){ _id: 5a80630bf09697623e01df7e,
+  text: 'This is from Postman',
+  __v: 0,
+  completedAt: null,
+  completed: false }
+
+
+Todos(findById){ _id: 5a80630bf09697623e01df7e,
+  text: 'This is from Postman',
+  __v: 0,
+  completedAt: null,
+  completed: false }
+
+
+//Read docs from
+http://mongoosejs.com/docs/documents.html
+
+
+
+Important notes:
+
+Mongoose automatically converts the model name into the collection name.
+ It coverts it to lower case and pluralizes it.
+
+
+What is the difference between these two segments of code regarding when the promise fails
+
+.then((doc) => {
+    console.log(doc);
+}, (e) => {
+    console.log(e);
+})
+
+
+
+then((doc) => {
+    console.log(doc)
+}).catch((e) => {
+    console.log(e)
+})
+
+The second solution will run the catch error function if the original promise call fails. 
+It will also run the catch error handler if the code inside the previous .then() call
+ throws an error. This is because catch is chained on after then. It's a "catch all"
+  for errors anywhere in the chain.
+
+The first solution will run either the success or error case depending on if the original
+ promise resolves or rejects. The error handler will not fire if the sucess case code throws
+  an error.
+
+
+
+const {ObjectID}=require('mongodb');
+if(!ObjectID.isValid(id)){
+console.log('ID is not valid');
+}
+//check if ID is valid or not...
