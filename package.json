@@ -5,7 +5,9 @@
   "scripts":{
      "start":"node server/server.js"
   },
- 
+  "engines":{
+     "node":"9.5.0"
+ },
   "license": "MIT",
   "dependencies": {
     "body-parser": "1.15.2",
