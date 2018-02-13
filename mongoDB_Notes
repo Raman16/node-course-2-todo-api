@@ -1110,3 +1110,10 @@ sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku logs
 sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku restart//restarts the server with new build again.
 sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku restart
 Restarting dynos on ⬢ whispering-everglades-63580... done
+
+
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku config=== whispering-everglades-63580 Config Vars
+MONGODB_URI: mongodb://bandariraman:r2m2642i@123B@ds247357.mlab.com:47357/todoapi
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku config:set MONGODB_URI='mongodb://sample:sample@ds129706.mlab.com:29706/sample';
+Setting MONGODB_URI and restarting ⬢ whispering-everglades-63580... done, v17
+MONGODB_URI: mongodb://sample:sample@ds129706.mlab.com:29706/sample
