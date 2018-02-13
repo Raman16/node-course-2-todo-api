@@ -1107,3 +1107,6 @@ sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku logs
 sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku logs
 
 
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku restart//restarts the server with new build again.
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku restart
+Restarting dynos on ⬢ whispering-everglades-63580... done
