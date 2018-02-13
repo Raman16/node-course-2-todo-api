@@ -968,13 +968,15 @@ localhost:3020/todos/5a80630bf09697623e01df7e
 
 
 Deploy API to Heroku
+
+
 package.json
 
 "scripts":{
      "start":"node server/server.js"
   },
 
- "engines":{      ///lets us specify various versions  that things Heroku to be used
+ "engines":{      ///lets us specify various versions  that things Heroku to be used as our local version
      "node":"6.11.4"
  },
 
@@ -1008,8 +1010,11 @@ sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku create
 Creating app... done, ⬢ whispering-everglades-63580
 https://whispering-everglades-63580.herokuapp.com/ | https://git.heroku.com/whispering-everglades-63580.git
 
+
 sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ git commit -am "Mongo DB connection with matlab"
+
 sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ git push heroku master
+
 
 
 sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku logs
@@ -1108,12 +1113,34 @@ sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku logs
 
 
 sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku restart//restarts the server with new build again.
+
 sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku restart
 Restarting dynos on ⬢ whispering-everglades-63580... done
 
 
+//ignore belo
 sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku config=== whispering-everglades-63580 Config Vars
 MONGODB_URI: mongodb://bandariraman:r2m2642i@123B@ds247357.mlab.com:47357/todoapi
-sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku config:set MONGODB_URI='mongodb://sample:sample@ds129706.mlab.com:29706/sample';
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ heroku config:set  
 Setting MONGODB_URI and restarting ⬢ whispering-everglades-63580... done, v17
 MONGODB_URI: mongodb://sample:sample@ds129706.mlab.com:29706/sample
+
+
+//real connection:
+
+1)Check config in heroku
+
+sysadmin@AcubeL020:/var/www/html/HomeApp$ heroku config
+=== peaceful-oasis-86848 Config Vars
+
+2)Config mongoDB from mlab provided information.
+
+sysadmin@AcubeL020:/var/www/html/HomeApp$ heroku config:set MONGODB_URI='mongodb://sample:sample@ds129706.mlab.com:29706/sample';
+Setting MONGODB_URI and restarting ⬢ peaceful-oasis-86848... done, v6
+MONGODB_URI: mongodb://sample:sample@ds129706.mlab.com:29706/sample
+
+3)Check DB Config
+sysadmin@AcubeL020:/var/www/html/HomeApp$ heroku config=== peaceful-oasis-86848 Config Vars
+MONGODB_URI: mongodb://sample:sample@ds129706.mlab.com:29706/sample
+
+

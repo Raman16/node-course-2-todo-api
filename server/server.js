@@ -55,7 +55,18 @@ app.get('/todos/:id',(req,res)=>{
         return res.status(400).send();
     }));
 
-})
+});
+
+// app.put('/todos/:id',(req,res)=>{
+//     var id=req.params.id;
+//     if(!ObjectID.isValid(id)){
+//         return res.status(404).send();
+//     }
+//    Todos.findById(
+//           {id:id},
+//           {$set:{text:'Eating Lunch and Desserts'}}
+//         )
+// })
 
 app.listen(port ,()=>{
    console.log(`Started on  port  ${port}`  );   
