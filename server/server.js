@@ -1,14 +1,17 @@
-var express= require('express');
-var bodyParser=require('body-parser');
-var {ObjectID}=require('mongodb')
-var {mongoose}=require('./db/mongoose');
-var {Users}=require('./model/Users');
-var {Todos}=require('./model/Todos');
+var env=process.env.NODE_ENV;//this variable only set on heroku.
+
+const express= require('express');
+const _=require('lodash');
+const bodyParser=require('body-parser');
+const {ObjectID}=require('mongodb')
+const {mongoose}=require('./db/mongoose');
+const {Users}=require('./model/Users');
+const {Todos}=require('./model/Todos');
 
 
-var app=express();
+const app=express();
 
-const port=process.env.PORT || 3000;
+const port=process.env.PORT || 3022;
 
 app.use(bodyParser.json());
 
@@ -26,6 +29,8 @@ app.post('/todos',(req,res)=>{
    });
 
 });
+
+
 
 
 app.get('/todos',(req,res)=>{
@@ -57,16 +62,72 @@ app.get('/todos/:id',(req,res)=>{
 
 });
 
-// app.put('/todos/:id',(req,res)=>{
-//     var id=req.params.id;
-//     if(!ObjectID.isValid(id)){
-//         return res.status(404).send();
-//     }
-//    Todos.findById(
-//           {id:id},
-//           {$set:{text:'Eating Lunch and Desserts'}}
-//         )
-// })
+app.delete('/todos/:id',(req,res)=>{
+    var id=req.params.id;
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+   Todos.findByIdAndRemove(id).then((todo)=>{
+      
+       if(!todo){
+           return res.status(400).send();
+        }
+        return res.send({todo});
+ 
+   })
+   .catch((err)=>{
+      res.status(404).send();
+   });
+});
+
+app.patch('/todos/:id',(req,res)=>{
+    var id=req.params.id;
+    var body=_.pick(req.body,['text','completed']);
+
+    if(!ObjectID.isValid(id)){
+        return res.status(400).send();
+    }
+    
+    if(_.isBoolean(body.completed) && body.completed){
+        body.completedAt=new Date().getTime();
+    }
+    else{
+        body.completed=false;
+        body.completedAt=null
+    }
+    
+        Todos.findByIdAndUpdate(id,{$set:body},{new:true}).then((todo)=>{ //we need to use $set update operatros always to update the docuemnt
+
+            if(!todo){
+                return res.status(400).send();
+            }
+            return res.send(todo);
+
+        })
+        .catch((err)=>{
+        res.status(404).send();
+        });
+
+})
+
+
+//Users Crud
+app.post('/users',(req,res)=>{
+   
+    var body=_.pick(req.body,['email','password']);
+    //var user=new Users({body});//may not work
+    var user=new Users(body);
+    user.save().then(()=>{
+       return  user.generateAuthtoken();
+    })
+    .then((token)=>{
+        res.header('x-auth').send(user);
+    })
+    .catch((err)=>{
+       res.status(400).send(err);
+    });
+});
+
 
 app.listen(port ,()=>{
    console.log(`Started on  port  ${port}`  );   

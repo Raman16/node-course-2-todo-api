@@ -1,0 +1,364 @@
+{
+
+    email:'bandariraman@gmail.com',
+    password:'rkajdajdsjas',//we need to hash the password
+    token:[
+        {
+            access:'auth', //token type authentication type
+            token:'fdfdfsgfsfsfsfsfsff'//this is the string encode and decode
+             //this is use for the user have access to do crud operations
+
+        }
+    ]
+}
+
+
+userr.js
+const validator=require('validator');
+const mongoose=require('mongoose');
+
+// {
+
+//     email:'bandariraman@gmail.com',
+//     password:'rkajdajdsjas',//we need to hash the password
+//     token:[
+//         {
+//             access:'auth', //token type authentication type
+//             token:'fdfdfsgfsfsfsfsfsff'//tis is the string encode and decode //this is use for the user have access to do crud operations
+
+//         }
+//     ]
+// }
+var Users=mongoose.model('Users',{
+    name:{
+        type:String,
+        require:true,
+         minlength:1
+     },
+     email:{
+         type:String,
+         require:true,
+         minlength:6,
+         unique: true,
+         trim:true,
+         validate:{
+           validator:validator.isEmail,
+           message:'{value} is not a valid email'
+         }
+
+     },
+
+
+     password:{
+         type:String,
+         require:true,
+         minlength:6
+     },
+
+    tokens:[{                    //this is the syntax mango had setup
+        //we have token array by mongo, this is not usaully  happens in postgresql...ect
+     access:{
+         type:String,
+         required:true
+     },
+     token:{
+        type:String,
+        required:true
+    }
+
+    }]
+});
+
+module.exports={Users};
+
+
+
+server.js
+//Users Crud
+app.post('/users',(req,res)=>{
+   
+    var body=_.pick(req.body,['email','password']);
+    //var user=new Users({body});//may not work
+    var user=new Users(body);
+    user.save().then((doc)=>{
+        res.send(doc);
+    })
+    .catch((err)=>{
+       res.status(400).send(err);
+    });
+});
+
+ouput
+In postman
+localhost:3021/users
+{
+    "__v": 0,
+    "email": "raman@gmail.com",
+    "password": "redsex",
+    "_id": "5a8471246d699405104a44fd",
+    "tokens": []
+}
+
+hit again with same email id, will ge below error.
+{
+    "code": 11000,
+    "index": 0,
+    "errmsg": "E11000 duplicate key error collection: TodoApp.users index: email_1 dup key: { : \"raman@gmail.com\" }",
+    "op": {
+        "email": "raman@gmail.com",
+        "password": "redsex",
+        "_id": "5a84710b6d699405104a44fb",
+        "tokens": [],
+        "__v": 0
+    }
+}
+
+
+
+
+JWTs and Hashing.
+We will undesrtand now the basic hash function called sha 256,so now we need
+to install crypto-js@3.1.6\
+
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ yarn add crypto-js@3.1.6 --save
+yarn add v1.3.2
+[1/5] Validating package.json...
+[2/5] Resolving packages...
+[3/5] Fetching packages...
+[4/5] Linking dependencies...
+[5/5] Building fresh packages...
+success Saved lockfile.
+success Saved 1 new dependency.
+└─ crypto-js@3.1.6
+Done in 3.59s.
+eg.md5,..ect
+
+
+hashing.js
+const {SHA256}=require('crypto-js');//256 is number of bits that are resulting hashing.
+
+var message='I am user number 3';
+var hash=SHA256(message).toString();  //we will get obejct result so wil  use toString()
+console.log(`Message:${message}`);
+console.log(`Hash:${hash}`);
+
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/hashing.js
+Message:I am user number 3
+Hash:9da4d19e100809d42da806c2b7df5cf37e72623d42f1669eb112e23f5c9d45a3
+
+
+Hashing is one way algorithm i.e I can convert original message to hashing,
+but could not convert hashing into orginal message(text) format.
+
+Hashing is used for storing passwords.
+
+salting the hash means ???
+
+
+hashing.js
+const {SHA256}=require('crypto-js');//256 is number of bits that are resulting hashing.
+
+var message='I am user number 3';
+var hash=SHA256(message).toString();  //we will get obejct result so wil  use toString()
+console.log(`Message:${message}`);
+console.log(`Hash:${hash}`);
+
+
+var data={
+    id:4
+}
+
+var token={
+    data,
+    hash:SHA256(JSON.stringify(data)+'somesecret').toString()
+}
+
+
+///////////////////
+//Man in the middle might try somehting like below.
+token.data.id=5;
+token.hash=SHA256(JSON.stringify(token.data)).toString();//JSON.stringify() to convert our object into string.
+/////////////////////
+
+var resultHash=SHA256(JSON.stringify(token.data)+'somesecret').toString();
+if(resultHash===token.hash){
+   console.log('Data was not changed');
+}
+else{
+    console.log('Data was changed, DO not trust...')
+}
+
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/hashing.js
+Message:I am user number 3
+Hash:9da4d19e100809d42da806c2b7df5cf37e72623d42f1669eb112e23f5c9d45a3
+Data was changed, DO not trust...
+
+
+example:2
+const {SHA256}=require('crypto-js');//256 is number of bits that are resulting hashing.
+
+var message='I am user number 3';
+var hash=SHA256(message).toString();  //we will get obejct result so wil  use toString()
+console.log(`Message:${message}`);
+console.log(`Hash:${hash}`);
+
+
+var data={
+    id:4
+}
+
+var token={
+    data,
+    hash:SHA256(JSON.stringify(data)+'somesecret').toString()
+}
+
+
+///////////////////
+//Man in the middle might try somehting like below.
+// token.data.id=5;
+// token.hash=SHA256(JSON.stringify(token.data)).toString();//JSON.stringify() to convert our object into string.
+/////////////////////
+
+var resultHash=SHA256(JSON.stringify(token.data)+'somesecret').toString();
+if(resultHash===token.hash){
+   console.log('Data was not changed');
+}
+else{
+    console.log('Data was changed, DO not trust...')
+}
+
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/hashing.js
+Message:I am user number 3
+Hash:9da4d19e100809d42da806c2b7df5cf37e72623d42f1669eb112e23f5c9d45a3
+Data was not changed
+
+
+Important Note:
+The concept above creating an object hashing
+i.e 
+var data={
+    id:4
+}
+
+var token={
+    data,
+    hash:SHA256(JSON.stringify(data)+'somesecret').toString()
+}
+
+and verifying it later 
+i.e
+var resultHash=SHA256(JSON.stringify(token.data)+'somesecret').toString();
+if(resultHash===token.hash){
+   console.log('Data was not changed');
+}
+else{
+    console.log('Data was changed, DO not trust...')
+}
+
+
+is called JSON WEB TOKEN
+
+
+We dont actuallu use crypto-js library, we will be using JWT actually in our application..
+
+install jsonwebtoken
+
+hashing.js
+
+const jwt  =require('jsonwebtoken');
+var data={
+    id:10
+}
+token=jwt.sign(data,'123abc');
+console.log(token);
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/hashing.js
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImlhdCI6MTUxODYzMjA0Mn0.8caUjvkBcr2pJxd5DrDIqkGaSL9m9lqAdFXvFUcc9zI
+
+//we can also refer jwt.io website
+
+example:2
+
+const {SHA256}=require('crypto-js');//256 is number of bits that are resulting hashing.
+const jwt  =require('jsonwebtoken');
+
+
+var data={
+    id:10
+}
+token=jwt.sign(data,'123abc');
+console.log('token'+token);
+
+
+var decoded=jwt.verify(token,'123abc');
+//var decoded=jwt.verify(token+'1','123abc');//we will get invalida data
+//var decoded=jwt.verify(token+'1','123abc22');//we will get invalida data even secret is changed
+console.log('Decoded:',decoded);
+
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/hashing.js
+tokeneyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImlhdCI6MTUxODYzMjMxN30.6VRKye0vozi7yagbkqIy-8kZOJoPWykQSXEyxwfghA4
+Decoded: { id: 10, iat: 1518632317 }
+
+
+Generating Auth Tokens and setting Headers.
+We need use token in all places of expressjs, not only user
+to do that we will be using two types of methods
+
+i)Model methods//called on Upper case i.e User obect
+ii)instance object//called on i.e user object
+
+Example of creating instance method is generateAuthToken->adding a token for individula user
+
+
+
+
+https://scotch.io/tutorials/the-ins-and-outs-of-token-based-authentication
+Server Based Authentication (The Traditional Method)
+Since the HTTP protocol is stateless, this means that if we authenticate a user with a username and password, then on the next request, our application won't know who we are. We would have to authenticate again.
+The traditional way of having our applications remember who we are is to store the user logged in information on the server. This can be done in a few different ways on the session, usually in memory or stored on the disk.
+
+The Problems with Server Based Authentication
+A few major problems arose with this method of authentication.
+
+Sessions: Every time a user is authenticated, the server will need to create a record somewhere on our server. This is usually done in memory and when there are many users authenticating, the overhead on your server increases.
+
+Scalability: Since sessions are stored in memory, this provides problems with scalability. As our cloud providers start replicating servers to handle application load, having vital information in session memory will limit our ability to scale.
+
+CORS: As we want to expand our application to let our data be used across multiple mobile devices, we have to worry about cross-origin resource sharing (CORS). When using AJAX calls to grab resources from another domain (mobile to our API server), we could run into problems with forbidden requests.
+
+CSRF: We will also have protection against cross-site request forgery (CSRF). Users are susceptible to CSRF attacks since they can already be authenticated with say a banking site and this could be taken advantage of when visiting other sites.
+
+With these problems, scalability being the main one, it made sense to try a different approach.
+
+#
+
+
+
+Token based authentication is stateless. We are not storing any information about our user on the server or in a session.
+
+This concept alone takes care of many of the problems with having to store information on the server.
+
+No session information means your application can scale and add more machines as necessary without worrying about where a user is logged in.
+
+Although this implementation can vary, the gist of it is as follows:
+
+User Requests Access with Username / Password
+Application validates credentials
+Application provides a signed token to the client
+Client stores that token and sends it along with every request
+Server verifies token and responds with data
+Every single request will require the token. This token should be sent in the HTTP header so that we keep with the idea of stateless HTTP requests. We will also need to set our server to accept requests from all domains using Access-Control-Allow-Origin: *. What's interesting about designating * in the ACAO header is that it does not allow requests to supply credentials like HTTP authentication, client-side SSL certificates, or cookies.
+
+Here's an infographic to explain the process:
+
+Multiple Platforms and Domains
+We talked a bit about CORS earlier. When our application and service expands, we will need to be providing access to all sorts of devices and applications (since our app will most definitely become popular!).
+
+Having our API just serve data, we can also make the design choice to serve assets from a CDN. This eliminates the issues that CORS brings up after we set a quick header configuration for our application.
+
+
+Access-Control-Allow-Origin: *
+Our data and resources are available to requests from any domain now as long as a user has a valid token.

@@ -203,3 +203,130 @@ if(!ObjectID.isValid(id)){
 console.log('ID is not valid');
 }
 //check if ID is valid or not...
+
+
+
+
+
+
+//Remove document
+
+const {ObjectID}=require('mongodb');
+var {mongoose}=require('./../server/db/mongoose');
+var {Todos}=require('./../server/model/Todos');
+Todos.findByIdAndRemove('5a806365f09697623e01df80').then((todo)=>{
+  console.log(`removed: ${todo}`);
+});
+
+
+
+Todos.js
+var mongoose=require('mongoose');
+var Todos=mongoose.model('Todo',{
+    text:{
+       type:String,
+       require:true,
+       minlength:1,
+       trim:true//removes any whitespaces in the string
+    },
+    completed:{
+        type:Boolean,
+        default:false
+    },
+    completedAt:{
+        type:Number,
+        default:null
+    }
+});
+
+module.exports={Todos};
+
+
+mongoose.js
+var mongoose=require('mongoose');
+const LOCAL_MONGO = 'mongodb://localhost:27017/TodoApp';
+const MONGO_URI = process.env.MONGODB_URI || LOCAL_MONGO;
+mongoose.Promise=global.Promise;
+mongoose.connect(MONGO_URI)
+.then((res)=>{ console.log('connected')})
+.catch((err)=>{ 
+   console.log(err);
+});
+
+
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mongoose-remove.jsconnected
+removed: { _id: 5a806365f09697623e01df80,
+  text: 'take a brak for dinner',
+  __v: 0,
+  completedAt: null,
+  completed: false }
+
+
+
+
+//Removes all Todo documents using below
+//we dont provide any id below 
+Todo.remove({}).then((res)=>{
+    console.log("removes all Todo");
+});
+output:gives the count of removed documents
+
+
+
+
+
+
+
+//find one and removes
+Todos.findOneAndRemove({_id:'5a806339f09697623e01df7f'}).then((todo)=>{
+      console.log(`removed: ${todo}`);
+ });
+output:
+sysadmin@AcubeL020:/var/www/html/nodo-todo-api$ node playground/mongoose-remove.jsconnected
+removed: { _id: 5a806339f09697623e01df7f,
+  text: 'Charge my phone',
+  __v: 0,
+  completedAt: null,
+  completed: false }
+
+
+
+
+
+//update document 
+
+app.patch('/todos/:id',(req,res)=>{
+    var id=req.params.id;
+    var body=_.pick(req.body,['text','completed']);//we dont want user to update all fields, Hence we pickup the fields to update using lodash
+
+    if(!ObjectID.isValid(id)){
+        return res.status(400).send();
+    }
+    
+    if(_.isBoolean(body.completed) && body.completed){
+        body.completedAt=new Date().getTime();
+    }
+    else{
+        body.completed=false;
+        body.completedAt=null
+    }
+    
+        Todos.findByIdAndUpdate(id,{$set:body},{new:true}).then((todo)=>{  ///new true, returns the updated object.
+
+            if(!todo){
+                return res.status(400).send();
+            }
+            return res.send(todo);
+
+        })
+        .catch((err)=>{
+        res.status(404).send();
+        });
+
+})
+
+
+
+
+//creatting a test database
